@@ -1,0 +1,27 @@
+{
+  "name": "pro-auth-helper",
+  "version": "1.0.0",
+  "description": "product authorization helper",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alwayss/proAuthHelper.git"
+  },
+  "keywords": [
+    "node",
+    "rsa"
+  ],
+  "author": "huangwj",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Alwayss/proAuthHelper/issues"
+  },
+  "homepage": "https://github.com/Alwayss/proAuthHelper#readme",
+  "dependencies": {
+    "ursa": "^0.9.4",
+    "xml2json": "^0.11.0"
+  }
+}
