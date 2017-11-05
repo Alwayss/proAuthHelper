@@ -21,7 +21,7 @@ npm install pro-auth-helper --save
 ## Example
 
 ### 检验license文件有效性
-* filepath — `{string}` — the xx.dat file path
+* filepath — `{string}` — the xx.lic file path
 
     	var ProAuthHelper = require('pro-auth-helper');
     	var helper = new ProAuthHelper();
