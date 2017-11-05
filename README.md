@@ -26,7 +26,7 @@ npm install pro-auth-helper --save
     	var ProAuthHelper = require('pro-auth-helper');
     	var helper = new ProAuthHelper();
     			
-    	helper.checkLicenseInfo(filepath, function(err,result){
+    	helper.checkLicenseInfo(filepath, function(err, result){
     		console.log(result);
     	});
 
@@ -35,8 +35,8 @@ npm install pro-auth-helper --save
 * data — `{object}` — then file content
 * result — `{bool}` — the result of this check.
 
-    	helper.createDatFile(filepath,data,function(err,result){
-    			if(err) {
+    	helper.createDatFile(filepath, data, function(err, result){
+    		if(err) {
     			console.log(err);
     		}else{
     			console.log(result);
