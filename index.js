@@ -13,7 +13,7 @@ function ProAuthHelper() {
  * 获取设备硬件码
  */
 ProAuthHelper.prototype.getMachineCode = function () {
-    var cpuId = os.cpus()[0].model;                           //第一个cpu名称模型
+    var cpuId = os.cpus()[0].model;                           //第一个cpu模型名称
     var hostname = os.hostname();                             //主机名代替主板ID
     var sys = os.platform();                                  //操作系统
     var hardwareCode = cpuId + hostname + sys;
@@ -26,6 +26,7 @@ ProAuthHelper.prototype.getMachineCode = function () {
  * callback: 回调函数
  */
 ProAuthHelper.prototype.createDatFile = function (dir, options, callback) {
+	var that = this;
     if (options instanceof Object) {
         var err = new Error('the options must be object');
         return callback(error);
@@ -33,6 +34,7 @@ ProAuthHelper.prototype.createDatFile = function (dir, options, callback) {
     for (var p in options) {
         fs.appendFileSync(dir, options[p] + '\n');
     }
+    fs.appendFileSync(dir, that.getMachineCode() + '\n');
     callback(null, { msg: 'the file Have been generated' });
 }
 
@@ -44,33 +46,32 @@ ProAuthHelper.prototype.createDatFile = function (dir, options, callback) {
 ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
     var that = this;
     if (!fs.existsSync(dir)) {
-        var err = new Error('the options must be object');
+        var err = new Error('the file is nonexiest');
         return callback(error);
     }
  
     ReadFileByLine(dir, function (data) {
         var licenseInfo = GetLicenseInfo(data);
-        var str = "3115b476-c342-4163-9e0a-68c04574d880" + licenseInfo.ExpirationTime + that.getMachineCode();
-        console.log(str);
+        var str = licenseInfo.ProductID + licenseInfo.ExpirationTime + that.getMachineCode();
         var licenseCode = licenseInfo.LicenseCode;
         var json = JSON.parse(parser.toJson(licenseInfo.PubKey));
         var modulus = json.RSAKeyValue.Modulus;
         var exponent = json.RSAKeyValue.Exponent;
         var hashdata = GetMD5Hash(str,'base64');
 
-        var publicKey = ursa.createPublicKeyFromComponents(new Buffer(modulus, 'base64'), new Buffer(exponent, 'base64'));
-        var result = publicKey.verify('md5', new Buffer(hashdata, 'base64'), new Buffer(licenseCode, 'base64'));
+        var publicKey = ursa.createPublicKeyFromComponents(Buffer.from(modulus, 'base64'), Buffer.from(exponent, 'base64'));
+        var result = publicKey.verify('md5', Buffer.from(hashdata, 'base64'), Buffer.from(licenseCode, 'base64'));
         callback(null, result);
     });
 }
 
 function GetMD5Hash(text,encoding) {
-    return crypto.createHash('md5').update(new Buffer(text)).digest(encoding);
+    return crypto.createHash('md5').update(Buffer.from(text)).digest(encoding);
 }
 
 function GetLicenseInfo(array) {
     var licenseInfo = {};
-    licenseInfo.ProductID = array[0];
+    licenseInfo.ProductID = array[0].replace(/[^a-zA-Z0-9]/,'');
     licenseInfo.ProductName = array[1];
     licenseInfo.Partner = array[2];
     licenseInfo.Cooperation = array[3];
@@ -92,10 +93,5 @@ function ReadFileByLine(dir, callback) {
         callback(array);
     })
 }
-
-// var helper = new ProAuthHelper();
-// helper.checkLicenseInfo('C:\\Users\\admin\\Desktop\\产品认证\\fdff0156-19c7-4587-b709-c28603a208ec.lic', function(err,result){
-//     console.log(result);
-// });
 
 module.exports = ProAuthHelper;
