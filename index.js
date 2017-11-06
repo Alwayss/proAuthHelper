@@ -71,10 +71,10 @@ ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
         var verifier = crypto.createVerify('md5');
         verifier.update(new Buffer(str),'base64');
         var bool = verifier.verify(publicKey, new Buffer(licenseCode,'base64'),'base64');
-        if(!bool){
-            callback(null, {code: 'machine',msg: 'The current machine is not authorized'});
-        }else{
+        if(bool){
             callback(null, {code: 'ok'});
+        }else{
+            callback(null, {code: 'machine',msg: 'The current machine is not authorized'});
         }
         
     });
