@@ -32,7 +32,7 @@ npm install pro-auth-helper --save
     		console.log(result);
     	});
 
-> result: {code: 'time',msg: 'Authorization expired'} or {code: 'machine',msg: 'The current machine is not authorized'}
+> result: {code: 'time',msg: 'Authorization expired'} or {code: 'machine',msg: 'The current machine is not authorized'} or {code: 'ok'}
 ### 生成.dat文件
 * filepath — `{string}` — the xx.dat file path
 * data — `{object}` — then file content

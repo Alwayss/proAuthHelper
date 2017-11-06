@@ -66,7 +66,12 @@ ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
 
         var publicKey = ursa.createPublicKeyFromComponents(Buffer.from(modulus, 'base64'), Buffer.from(exponent, 'base64'));
         var result = publicKey.verify('md5', Buffer.from(hashdata, 'base64'), Buffer.from(licenseCode, 'base64'));
-        callback(null, {code: 'machine',msg: 'The current machine is not authorized'});
+        if(!result){
+            callback(null, {code: 'machine',msg: 'The current machine is not authorized'});
+        }else{
+            callback(null, {code: 'ok'});
+        }
+        
     });
 }
 
