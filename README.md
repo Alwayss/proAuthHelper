@@ -1,14 +1,11 @@
 # proAuthHelper
 product authorization helper
 
-## dependencies
+## Requirements
 On Windows, you'll need to install some dependencies first:
 
-- OpenSSL (normal, not light) in the same bitness as your Node.js installation.
-- OpenSSL must be installed in the a specific install directory (C:\OpenSSL-Win32 or C:\OpenSSL-Win64)
-- If you get Error: The specified module could not be found., copy libeay32.dll from the OpenSSL bin directory to this module's bin directory, or to Windows\System32.
 - node-gyp (npm install -g node-gyp)
-- You will need python 2.7 and a compatible version Visual Studio installed first. Even with that, node-gyp installation or use can have issues on Windows. The node-gyp README file has detailed instructions if you have difficulties. This post is also a good reference.
+- python 2.7 and a compatible version Visual Studio installed first. Even with that, node-gyp installation or use can have issues on Windows. The node-gyp README file has detailed instructions if you have difficulties. This post is also a good reference.
 
 
 ## Installing

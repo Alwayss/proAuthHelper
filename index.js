@@ -2,7 +2,8 @@ var fs = require('fs');
 var os = require('os');
 var crypto = require('crypto');
 var readline = require('readline');
-var ursa = require('ursa');
+var RSA = require('node-rsa');
+var getPem = require('rsa-pem-from-mod-exp');
 var parser = require('xml2json');
 
 function ProAuthHelper() {
@@ -18,7 +19,7 @@ ProAuthHelper.prototype.getMachineCode = function () {
     var sys = os.platform();                                  //操作系统
     var hardwareCode = cpuId + hostname + sys;
     return GetMD5Hash(hardwareCode,'hex');                           //获取机器码
-}
+};
 
 /**
  * dir: 生成.dat存储的位置
@@ -29,14 +30,14 @@ ProAuthHelper.prototype.createDatFile = function (dir, options, callback) {
 	var that = this;
     if (options instanceof Object) {
         var err = new Error('the options must be object');
-        return callback(error);
+        return callback(err);
     }
     for (var p in options) {
         fs.appendFileSync(dir, options[p] + '\r\n');
     }
     fs.appendFileSync(dir, that.getMachineCode() + '\r\n');
     callback(null, { msg: 'the file Have been generated' });
-}
+};
 
 /**
  * 检验license有效性
@@ -47,7 +48,7 @@ ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
     var that = this;
     if (!fs.existsSync(dir)) {
         var err = new Error('the file is nonexiest');
-        return callback(error);
+        return callback(err);
     }
  
     ReadFileByLine(dir, function (data) {
@@ -62,18 +63,22 @@ ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
         var json = JSON.parse(parser.toJson(licenseInfo.PubKey));
         var modulus = json.RSAKeyValue.Modulus;
         var exponent = json.RSAKeyValue.Exponent;
-        var hashdata = GetMD5Hash(str,'base64');
 
-        var publicKey = ursa.createPublicKeyFromComponents(Buffer.from(modulus, 'base64'), Buffer.from(exponent, 'base64'));
-        var result = publicKey.verify('md5', Buffer.from(hashdata, 'base64'), Buffer.from(licenseCode, 'base64'));
-        if(!result){
+        var pem = getPem(modulus, exponent);
+        var publicPem = new RSA(pem);
+        var publicKey = publicPem.exportKey('public');
+
+        var verifier = crypto.createVerify('md5');
+        verifier.update(new Buffer(str),'base64');
+        var bool = verifier.verify(publicKey, new Buffer(licenseCode,'base64'),'base64');
+        if(!bool){
             callback(null, {code: 'machine',msg: 'The current machine is not authorized'});
         }else{
             callback(null, {code: 'ok'});
         }
         
     });
-}
+};
 
 function GetMD5Hash(text,encoding) {
     return crypto.createHash('md5').update(Buffer.from(text)).digest(encoding);
