@@ -28,9 +28,6 @@ npm install pro-auth-helper --save
 
 * filepath — `{string}` — the xx.lic file path
 
-    	var ProAuthHelper = require('pro-auth-helper');
-    	var helper = new ProAuthHelper();
-    			
     	helper.checkLicenseInfo(filepath, function(err, result){
     		console.log(result);
     	});
