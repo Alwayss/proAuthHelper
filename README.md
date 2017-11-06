@@ -21,6 +21,10 @@ npm install pro-auth-helper --save
 ## Example
 
 ### 检验license文件有效性
+
+		var ProAuthHelper = require('pro-auth-helper');
+    	var helper = new ProAuthHelper();
+
 * filepath — `{string}` — the xx.lic file path
 
     	var ProAuthHelper = require('pro-auth-helper');
@@ -30,15 +34,17 @@ npm install pro-auth-helper --save
     		console.log(result);
     	});
 
+> result: {code: 'time',msg: 'Authorization expired'} or {code: 'machine',msg: 'The current machine is not authorized'}
 ### 生成.dat文件
 * filepath — `{string}` — the xx.dat file path
 * data — `{object}` — then file content
 * result — `{bool}` — the result of this check.
 
-    	helper.createDatFile(filepath, data, function(err, result){
+    	helper.createDatFile(filepath, {produceId:xxx,username:xxxx,...}, function(err, result){
     		if(err) {
     			console.log(err);
     		}else{
     			console.log(result);
     		}
     	});
+> result: { msg: 'the file Have been generated' }

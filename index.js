@@ -52,6 +52,11 @@ ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
  
     ReadFileByLine(dir, function (data) {
         var licenseInfo = GetLicenseInfo(data);
+        var now = new Date().getTime();
+        var endTime = new Date(licenseInfo.ExpirationTime).getTime();
+        if(now > endTime){
+            return callback(null, {code: 'time',msg: 'Authorization expired'});
+        }
         var str = licenseInfo.ProductID + licenseInfo.ExpirationTime + that.getMachineCode();
         var licenseCode = licenseInfo.LicenseCode;
         var json = JSON.parse(parser.toJson(licenseInfo.PubKey));
@@ -61,7 +66,7 @@ ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
 
         var publicKey = ursa.createPublicKeyFromComponents(Buffer.from(modulus, 'base64'), Buffer.from(exponent, 'base64'));
         var result = publicKey.verify('md5', Buffer.from(hashdata, 'base64'), Buffer.from(licenseCode, 'base64'));
-        callback(null, result);
+        callback(null, {code: 'machine',msg: 'The current machine is not authorized'});
     });
 }
 
