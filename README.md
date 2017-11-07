@@ -31,9 +31,9 @@ npm install pro-auth-helper --save
 
 > result: {code: 'time',msg: 'Authorization expired'} or {code: 'machine',msg: 'The current machine is not authorized'} or {code: 'ok'}
 ### 生成.dat文件
-* filepath — `{string}` — the xx.dat file path
-* data — `{object}` — then file content
-* result — `{bool}` — the result of this check.
+* filepath — `{string}` — xx.dat file path
+* data — `{object}` — the file content
+* result — `{bool}` — The results of the generated file.
 
     	helper.createDatFile(filepath, {produceId:xxx,username:xxxx,...}, function(err, result){
     		if(err) {
