@@ -28,7 +28,7 @@ ProAuthHelper.prototype.getMachineCode = function () {
  */
 ProAuthHelper.prototype.createDatFile = function (dir, options, callback) {
 	var that = this;
-    if (options instanceof Object) {
+    if (!(options instanceof Object)) {
         var err = new Error('the options must be object');
         return callback(err);
     }
@@ -59,6 +59,7 @@ ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
             return callback(null, {code: 'time',msg: 'Authorization expired'});
         }
         var str = licenseInfo.ProductID + licenseInfo.ExpirationTime + that.getMachineCode();
+        console.log(str);
         var licenseCode = licenseInfo.LicenseCode;
         var json = JSON.parse(parser.toJson(licenseInfo.PubKey));
         var modulus = json.RSAKeyValue.Modulus;
@@ -86,7 +87,13 @@ function GetMD5Hash(text,encoding) {
 
 function GetLicenseInfo(array) {
     var licenseInfo = {};
-    licenseInfo.ProductID = array[0].replace(/[^a-zA-Z0-9]/,'');
+    var tag = array[0].slice(0,1);
+    var pattern = /[^a-zA-Z0-9]/;
+    if(pattern.test(tag)){
+      licenseInfo.ProductID = array[0].slice(1);
+    }else{
+      licenseInfo.ProductID = array[0];
+    }
     licenseInfo.ProductName = array[1];
     licenseInfo.Partner = array[2];
     licenseInfo.Cooperation = array[3];
