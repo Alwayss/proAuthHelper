@@ -33,9 +33,9 @@ ProAuthHelper.prototype.createDatFile = function (dir, options, callback) {
         return callback(err);
     }
     for (var p in options) {
-        fs.appendFileSync(dir, options[p] + '\r\n');
+        fs.appendFileSync(dir, options[p] + '\r\n','ascii');
     }
-    fs.appendFileSync(dir, that.getMachineCode() + '\r\n');
+    fs.appendFileSync(dir, that.getMachineCode() + '\r\n','ascii');
     callback(null, { msg: 'the file Have been generated' });
 };
 
