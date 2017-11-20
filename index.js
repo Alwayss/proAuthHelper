@@ -59,7 +59,6 @@ ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
             return callback(null, {code: 'time',msg: 'Authorization expired'});
         }
         var str = licenseInfo.ProductID + licenseInfo.ExpirationTime + that.getMachineCode();
-        console.log(str);
         var licenseCode = licenseInfo.LicenseCode;
         var json = JSON.parse(parser.toJson(licenseInfo.PubKey));
         var modulus = json.RSAKeyValue.Modulus;
