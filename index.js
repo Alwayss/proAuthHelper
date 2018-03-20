@@ -5,6 +5,7 @@ var readline = require('readline');
 var RSA = require('node-rsa');
 var getPem = require('rsa-pem-from-mod-exp');
 var parser = require('xml2json');
+var path = require('path');
 
 function ProAuthHelper() {
 
@@ -27,15 +28,16 @@ ProAuthHelper.prototype.getMachineCode = function () {
  * callback: 回调函数
  */
 ProAuthHelper.prototype.createDatFile = function (dir, options, callback) {
-	var that = this;
-    if (options instanceof Object) {
+    var fileDir = path.resolve(dir, new Date().getTime() + '.dat');
+	  var that = this;
+    if (typeof options !== "object") {
         var err = new Error('the options must be object');
         return callback(err);
     }
     for (var p in options) {
-        fs.appendFileSync(dir, options[p] + '\r\n');
+        fs.appendFileSync(fileDir, options[p] + '\r\n');
     }
-    fs.appendFileSync(dir, that.getMachineCode() + '\r\n');
+    fs.appendFileSync(fileDir, that.getMachineCode() + '\r\n');
     callback(null, { msg: 'the file Have been generated' });
 };
 
@@ -44,7 +46,7 @@ ProAuthHelper.prototype.createDatFile = function (dir, options, callback) {
  * dir: license文件路径
  * callback: 回调函数
  */
-ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
+ProAuthHelper.prototype.checkLicenseInfo = function (dir, PubKey, callback) {
     var that = this;
     if (!fs.existsSync(dir)) {
         var err = new Error('the file is nonexiest');
@@ -53,23 +55,27 @@ ProAuthHelper.prototype.checkLicenseInfo = function (dir, callback) {
  
     ReadFileByLine(dir, function (data) {
         var licenseInfo = GetLicenseInfo(data);
+        licenseInfo.PubKey = PubKey;
         var now = new Date().getTime();
         var endTime = new Date(licenseInfo.ExpirationTime).getTime();
         if(now > endTime){
             return callback(null, {code: 'time',msg: 'Authorization expired'});
         }
-        var str = licenseInfo.ProductID + licenseInfo.ExpirationTime + that.getMachineCode();
+        var str = licenseInfo.ProductID + that.getMachineCode() + licenseInfo.Cooperation + licenseInfo.ExpirationTime  + licenseInfo.Type;
         var licenseCode = licenseInfo.LicenseCode;
+
+        // 获取对应的公钥
         var json = JSON.parse(parser.toJson(licenseInfo.PubKey));
         var modulus = json.RSAKeyValue.Modulus;
         var exponent = json.RSAKeyValue.Exponent;
-
         var pem = getPem(modulus, exponent);
         var publicPem = new RSA(pem);
         var publicKey = publicPem.exportKey('public');
 
-        var verifier = crypto.createVerify('md5');
+				// 加签
+        var verifier = crypto.createVerify('sha1');
         verifier.update(new Buffer(str),'base64');
+
         var bool = verifier.verify(publicKey, new Buffer(licenseCode,'base64'),'base64');
         if(bool){
             callback(null, {code: 'ok'});
@@ -88,11 +94,12 @@ function GetLicenseInfo(array) {
     var licenseInfo = {};
     licenseInfo.ProductID = array[0].replace(/[^a-zA-Z0-9]/,'');
     licenseInfo.ProductName = array[1];
-    licenseInfo.Partner = array[2];
     licenseInfo.Cooperation = array[3];
-    licenseInfo.PubKey = array[4];
-    licenseInfo.LicenseCode = array[5];
-    licenseInfo.ExpirationTime = array[6];
+    licenseInfo.Partner = array[2];
+    // licenseInfo.PubKey = array[4];
+	  licenseInfo.Type = array[4];
+    licenseInfo.LicenseCode = array[6];
+    licenseInfo.ExpirationTime = array[5];
     return licenseInfo;
 }
 
