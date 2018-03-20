@@ -92,7 +92,13 @@ function GetMD5Hash(text,encoding) {
 
 function GetLicenseInfo(array) {
     var licenseInfo = {};
-    licenseInfo.ProductID = array[0].replace(/[^a-zA-Z0-9]/,'');
+    var tag = array[0].slice(0,1);
+    var pattern = /[^a-zA-Z0-9]/;
+    if(pattern.test(tag)){
+      licenseInfo.ProductID = array[0].slice(1);
+    }else{
+      licenseInfo.ProductID = array[0];
+    }
     licenseInfo.ProductName = array[1];
     licenseInfo.Cooperation = array[3];
     licenseInfo.Partner = array[2];
